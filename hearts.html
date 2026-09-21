@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shaheda, Collect My Hearts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Your existing CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Hearts-specific styles -->
+  <style>
+    :root {
+    /* Romantic love background: deep rose → soft red */
+  --hb-bg1: #2a0a18;      /* deep wine */
+  --hb-bg2: #6b1236;      /* rich rose */
+  --hb-text: #fff0f5;     /* soft rose-white */
+  --hb-accent: #ffc2d1;   /* soft pink */
+  --hb-btn-bg: #ff4d6d;   /* romantic red-pink */
+  --hb-btn-bg-hover: #e01e4a; /* deeper pink */
+  --hb-btn-text: #ffffff;
+    }
+
+    .hearts-body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--hb-bg1), var(--hb-bg2));
+      color: var(--hb-text);
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .hearts-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(255,255,255,0.06), transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hearts-container {
+      position: relative;
+      z-index: 2;
+      padding: 20px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .hearts-title {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+      text-shadow: 0 0 12px rgba(167, 243, 208, 0.6);
+    }
+
+    .hearts-subtitle {
+      font-size: 1rem;
+      opacity: 0.9;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .hearts-counter-box {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin: 10px auto 25px;
+      display: inline-block;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .hearts-counter-label {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      margin-bottom: 6px;
+    }
+
+    .hearts-counter-value {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--hb-accent);
+      text-shadow: 0 0 14px rgba(167, 243, 208, 0.7);
+    }
+
+    .hearts-field {
+      position: relative;
+      width: 100%;
+      height: 55vh;
+      min-height: 320px;
+      max-height: 480px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+      backdrop-filter: blur(4px);
+    }
+
+    .floating-heart {
+      position: absolute;
+      font-size: 28px;
+      user-select: none;
+      cursor: pointer;
+      filter: drop-shadow(0 0 6px rgba(255, 77, 109, 0.8));
+      transition: transform 0.2s ease, filter 0.2s ease, opacity 0.25s ease;
+      animation: floatUp linear infinite;
+    }
+
+    .floating-heart:hover {
+      transform: scale(1.25);
+      filter: drop-shadow(0 0 12px rgba(255, 143, 163, 0.9));
+    }
+
+    .floating-heart.collected {
+      transform: scale(0);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) rotate(0deg);
+      }
+      100% {
+        transform: translateY(-120vh) rotate(360deg);
+      }
+    }
+
+    .hearts-footer {
+      margin-top: 16px;
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    /* Unlock message & button */
+    .unlock-wrap {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+      padding: 20px;
+    }
+
+    .unlock-wrap.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .unlock-card {
+      background: linear-gradient(135deg, #3a0a22, #7a1445);
+      border: 1px solid rgba(255, 194, 209, 0.35);
+      border-radius: 20px;
+      padding: 28px 22px;
+      max-width: 460px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      transform: translateY(20px) scale(0.96);
+      transition: transform 0.6s cubic-bezier(.2,.9,.2,1);
+      text-align: center;
+      color: var(--hb-text);
+    }
+
+    .unlock-wrap.visible .unlock-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .unlock-title {
+      font-size: 1.7rem;
+      margin-bottom: 12px;
+      color: var(--hb-accent);
+      text-shadow: 0 0 14px rgba(167, 243, 208, 0.7);
+    }
+
+    .unlock-text {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      opacity: 0.95;
+    }
+
+    .hearts-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--hb-btn-bg), var(--hb-btn-bg-hover));
+      color: var(--hb-btn-text);
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 12px 26px;
+      border-radius: 14px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(34, 197, 94, 0.5);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    }
+
+    .hearts-btn:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 12px 30px rgba(34, 197, 94, 0.7);
+      filter: brightness(1.05);
+    }
+
+    @media (max-width: 480px) {
+      .hearts-title {
+        font-size: 1.6rem;
+      }
+      .hearts-subtitle {
+        font-size: 0.9rem;
+      }
+      .hearts-counter-value {
+        font-size: 2rem;
+      }
+      .hearts-field {
+        height: 50vh;
+        min-height: 260px;
+      }
+      .floating-heart {
+        font-size: 24px;
+      }
+      .unlock-title {
+        font-size: 1.4rem;
+      }
+      .unlock-text {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body class="hearts-body">
+  <div class="hearts-overlay"></div>
+
+  <div class="hearts-container">
+    <!-- Personalized header -->
+    <h1 class="hearts-title">Shaheda, Collect My Hearts</h1>
+    <p class="hearts-subtitle">
+      Every heart you catch is a piece of Kanna’s love for you.<br />
+      Collect 5 hearts to unlock a special message.
+    </p>
+    <!-- End personalized header -->
+
+    <div class="hearts-counter-box">
+      <div class="hearts-counter-label">Hearts you’ve collected</div>
+      <div class="hearts-counter-value" id="counter">0</div>
+    </div>
+
+    <div class="hearts-field" id="heartField"></div>
+
+    <p class="hearts-footer">
+      Made with love by Kanna, just for Shaheda. ❤️
+    </p>
+  </div>
+
+  <!-- Unlock message overlay -->
+  <div class="unlock-wrap" id="unlockOverlay">
+    <div class="unlock-card">
+      <!-- EDIT YOUR AWESOME TEXT BELOW -->
+      <h2 class="unlock-title">You’ve Collected My Heart 🌙</h2>
+      <p class="unlock-text">
+        Shaheda,<br /><br />
+        These 5 hearts are just a small piece of what I feel for you.<br />
+        Every beat of my heart whispers your name, and every dua I make<br />
+        carries your happiness, your peace, and your smile.<br /><br />
+        Now, let’s walk a little more into our story…
+      </p>
+      <!-- END AWESOME TEXT -->
+
+      <a href="memories.html" class="hearts-btn">Open Our Memories</a>
+    </div>
+  </div>
+
+  <!-- Your existing JS -->
+  <script src="script.js"></script>
+
+  <!-- Hearts logic -->
+  <script>
+    (function () {
+      const heartField = document.getElementById('heartField');
+      const counterEl = document.getElementById('counter');
+      const unlockOverlay = document.getElementById('unlockOverlay');
+
+      if (!heartField || !counterEl) return; // safety: only run on hearts page
+
+      let collectedCount = 0;
+      const totalHearts = 60;
+      const unlockThreshold = 5;
+
+      const heartEmojis = ['❤️', '💚']; // red and green only
+      let unlocked = false;
+
+      function random(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      function showUnlock() {
+        if (unlocked) return;
+        unlocked = true;
+        unlockOverlay.classList.add('visible');
+      }
+
+      function createHeart() {
+        const heart = document.createElement('div');
+        heart.className = 'floating-heart';
+        heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+
+        const left = random(5, 90);
+        const size = random(18, 36);
+        const duration = random(6, 12);
+        const delay = random(0, 5);
+
+        heart.style.left = left + '%';
+        heart.style.fontSize = size + 'px';
+        heart.style.animationDuration = duration + 's';
+        heart.style.animationDelay = '-' + delay + 's';
+        heart.style.bottom = '-40px';
+
+        const collect = () => {
+          if (heart.classList.contains('collected')) return;
+          heart.classList.add('collected');
+          collectedCount++;
+          counterEl.textContent = collectedCount;
+
+          setTimeout(() => {
+            heart.remove();
+          }, 300);
+
+          if (collectedCount === unlockThreshold) {
+            setTimeout(showUnlock, 500);
+          }
+
+          setTimeout(createHeart, random(200, 800));
+        };
+
+        heart.addEventListener('click', collect);
+        heart.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          collect();
+        });
+
+        heartField.appendChild(heart);
+      }
+
+      for (let i = 0; i < totalHearts; i++) {
+        setTimeout(createHeart, random(0, 1500));
+      }
+    })();
+  </script>
+</body>
+</html>
